@@ -1,4 +1,3 @@
-
 import streamlit as st
 from PIL import Image
 
@@ -20,7 +19,7 @@ st.set_page_config(page_title="Multimodal RAG Assistant", layout="wide")
 st.title("🧠 Multimodal AI Knowledge Assistant")
 st.write("Image understanding + Document RAG + LLM reasoning")
 
-# --------- Limits (important for free hosting) ----------
+# --------- Limits ----------
 MAX_FILE_SIZE_MB = 10
 
 # ------------------------------------------------------
@@ -28,8 +27,8 @@ MAX_FILE_SIZE_MB = 10
 # ------------------------------------------------------
 @st.cache_resource
 def load_models():
-    # Vision (pipeline-based, CPU/GPU auto)
-    caption_pipeline = load_vision_model()
+    # Vision (VisionEncoderDecoder bundle)
+    vision_bundle = load_vision_model()
 
     # Base RAG artifacts
     chunks, index, embedder = load_rag_artifacts()
@@ -38,7 +37,7 @@ def load_models():
     tokenizer, llm = load_llm()
 
     return (
-        caption_pipeline,
+        vision_bundle,
         chunks,
         index,
         embedder,
@@ -47,7 +46,7 @@ def load_models():
     )
 
 (
-    caption_pipeline,
+    vision_bundle,
     chunks,
     index,
     embedder,
@@ -74,16 +73,15 @@ with tab1:
         st.image(image, caption="Uploaded Image", use_column_width=True)
 
         if st.button("Generate Caption"):
-            caption = generate_caption(image, caption_pipeline)
+            caption = generate_caption(image, vision_bundle)
             st.success(caption)
 
 # =================== DOCUMENT TAB =====================
 with tab2:
     st.subheader("Ask from Uploaded Document")
 
-    st.info(
-        "Upload a document to ask questions. "
-    "For best results, use files under 10 MB."
+    st.caption(
+        "Supports PDF, TXT, and DOCX files (recommended under 10 MB)."
     )
 
     uploaded_doc = st.file_uploader(
