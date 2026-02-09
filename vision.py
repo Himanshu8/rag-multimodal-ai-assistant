@@ -1,13 +1,13 @@
 import torch
 from transformers import pipeline
 
-device = 0 if torch.cuda.is_available() else -1
-
 def load_vision_model():
+    device = 0 if torch.cuda.is_available() else -1
+
     caption_pipeline = pipeline(
-        task="image-to-text",
+        task="image-text-to-text",
         model="nlpconnect/vit-gpt2-image-captioning",
-        device=device
+        device=device,
     )
     return caption_pipeline
 
