@@ -27,13 +27,8 @@ MAX_FILE_SIZE_MB = 10
 # ------------------------------------------------------
 @st.cache_resource
 def load_models():
-    # Vision (VisionEncoderDecoder bundle)
     vision_bundle = load_vision_model()
-
-    # Base RAG artifacts
     chunks, index, embedder = load_rag_artifacts()
-
-    # LLM
     tokenizer, llm = load_llm()
 
     return (
@@ -72,7 +67,7 @@ with tab1:
         image = Image.open(uploaded_image).convert("RGB")
         st.image(image, caption="Uploaded Image", use_column_width=True)
 
-        if st.button("Generate Caption"):
+        if st.button("Generate Caption", key="caption_btn"):
             caption = generate_caption(image, vision_bundle)
             st.success(caption)
 
@@ -90,7 +85,6 @@ with tab2:
     )
 
     if uploaded_doc:
-        # ---- File size check ----
         file_size_mb = uploaded_doc.size / (1024 * 1024)
 
         if file_size_mb > MAX_FILE_SIZE_MB:
@@ -111,15 +105,16 @@ with tab2:
 
         question = st.text_input("Ask a question from the document")
 
-        if st.button("Get Answer") and question:
+        if st.button("Get Answer", key="answer_btn") and question:
             context_chunks = retrieve_context(
                 question, doc_chunks, doc_index, embedder
             )
-            context = " ".join(context_chunks)
+            context = "\n\n".join(context_chunks)
 
-            answer = generate_answer(
-                question, context, tokenizer, llm
-            )
+            with st.spinner("Thinking... ⏳"):
+                answer = generate_answer(
+                    question, context, tokenizer, llm
+                )
 
             st.markdown("### ✅ Answer")
             st.write(answer)
