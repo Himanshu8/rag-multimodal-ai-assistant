@@ -15,8 +15,8 @@ def load_llm():
 
 def generate_answer(question, context, tokenizer, model):
     prompt = (
-        "You are a helpful AI assistant. Use the context below to answer "
-        "the question in a clear and complete manner.\n\n"
+        "Answer the question using the context below. "
+        "Be clear, concise, and informative.\n\n"
         f"Context:\n{context}\n\n"
         f"Question:\n{question}\n\n"
         "Answer:"
@@ -26,17 +26,16 @@ def generate_answer(question, context, tokenizer, model):
         prompt,
         return_tensors="pt",
         truncation=True,
-        max_length=1024
+        max_length=768,   # 🔥 reduced for speed
     ).to(DEVICE)
 
     with torch.no_grad():
         output_ids = model.generate(
             **inputs,
-            max_new_tokens=256,      # 🔥 KEY FIX
-            do_sample=True,          # allow richer outputs
-            temperature=0.7,         # balanced creativity
-            top_p=0.9,               # nucleus sampling
-            repetition_penalty=1.1,  # avoid loops
+            max_new_tokens=128,      # 🔥 CRITICAL: fast on CPU
+            do_sample=False,         # 🔥 deterministic & faster
+            temperature=1.0,         # ignored when do_sample=False
+            repetition_penalty=1.1,
             early_stopping=True
         )
 
