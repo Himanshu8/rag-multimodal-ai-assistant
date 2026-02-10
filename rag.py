@@ -30,7 +30,7 @@ def load_rag_artifacts():
 # Retrieve relevant context
 # =========================================================
 
-def retrieve_context(query, chunks, index, embedder, top_k=5):
+def retrieve_context(query, chunks, index, embedder, top_k=3):
     query_embedding = embedder.encode([query])
     distances, indices = index.search(query_embedding, top_k)
     return [chunks[i] for i in indices[0]]
